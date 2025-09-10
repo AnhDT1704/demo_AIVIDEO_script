@@ -24,12 +24,16 @@ ENABLE_SCENE_LIMIT = False  # DISABLED - No scene limit
 MAX_SCENES_LIMIT = 15  # Kept for backup/future use
 ADAPTIVE_THRESHOLD_BOOST = 15.0
 
+# Load environment variables
+from dotenv import load_dotenv
+load_dotenv()
+
 # Blaze.vn STT API settings
 BLAZE_API_URL = "https://api.blaze.vn/v1/stt/transcribe?enable_segments=true"
-BLAZE_API_KEY = "220a427773d646ef18f7e2e52e649336991462b0"
+BLAZE_API_KEY = os.getenv('BLAZE_API_KEY')
 
 # Google AI Studio settings
-GOOGLE_AI_API_KEY = "AIzaSyDF611VNsiI4w1SbutQ5JqRdH7DDIplVNk"
+GOOGLE_AI_API_KEY = os.getenv('GOOGLE_AI_API_KEY')
 GEMINI_MODEL = "gemini-2.5-flash"
 
 # Create directories if not exist
