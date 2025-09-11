@@ -2,7 +2,9 @@ import os
 import requests
 import streamlit as st
 import ffmpeg
-from pydub import AudioSegment
+import librosa
+import soundfile as sf
+import numpy as np
 from typing import Dict, List, Any, Optional
 from config import BLAZE_API_URL, BLAZE_API_KEY, TEMP_DIR
 
@@ -42,38 +44,39 @@ class AudioTranscriber:
             scenes_audio_dir = os.path.join(self.temp_dir, "scenes_audio")
             os.makedirs(scenes_audio_dir, exist_ok=True)
             
-            # Load complete audio
-            audio = AudioSegment.from_file(audio_path)
+            # Load complete audio using librosa
+            audio_data, sample_rate = librosa.load(audio_path, sr=None)
             scene_audio_files = []
             
             progress_bar = st.progress(0)
             
             for i, scene in enumerate(scenes):
-                # Extract audio segment for this scene
-                start_ms = int(scene['start_time'] * 1000)
-                end_ms = int(scene['end_time'] * 1000)
+                # Calculate sample indices for this scene
+                start_sample = int(scene['start_time'] * sample_rate)
+                end_sample = int(scene['end_time'] * sample_rate)
                 
-                # Extract exact duration
-                scene_audio = audio[start_ms:end_ms]
+                # Extract audio segment for this scene
+                scene_audio = audio_data[start_sample:end_sample]
+                scene_duration = len(scene_audio) / sample_rate
                 
                 # Skip very short scenes (< 1 second)
-                if scene_audio.duration_seconds < 1.0:
+                if scene_duration < 1.0:
                     scene_audio_files.append({
                         'scene_id': scene['scene_id'],
                         'audio_path': None,
-                        'duration': scene_audio.duration_seconds,
+                        'duration': scene_duration,
                         'skip_reason': 'Too short'
                     })
                     continue
                 
-                # Export scene audio
+                # Export scene audio using soundfile
                 scene_audio_path = os.path.join(scenes_audio_dir, f"scene_{scene['scene_id']:03d}.wav")
-                scene_audio.export(scene_audio_path, format='wav')
+                sf.write(scene_audio_path, scene_audio, sample_rate)
                 
                 scene_audio_files.append({
                     'scene_id': scene['scene_id'],
                     'audio_path': scene_audio_path,
-                    'duration': scene_audio.duration_seconds,
+                    'duration': scene_duration,
                     'skip_reason': None
                 })
                 
