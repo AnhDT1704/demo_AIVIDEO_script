@@ -1,7 +1,8 @@
 python3-dev
 libpython3-dev
 ffmpeg
-libasound-dev
-portaudio19-dev
-libportaudio2
-libportaudiocpp0
+libasound2-dev
+libsndfile1
+libsndfile1-dev
+libffi-dev
+pkg-config
