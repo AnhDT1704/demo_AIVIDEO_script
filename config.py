@@ -33,8 +33,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Blaze.vn STT API settings
-BLAZE_API_URL = "https://api.blaze.vn/v1/stt/transcribe?enable_segments=true"
-BLAZE_API_KEY = os.getenv('BLAZE_API_KEY')
+
 
 # Google AI Studio settings
 GOOGLE_AI_API_KEY = os.getenv('GOOGLE_AI_API_KEY')  # For frame analysis
