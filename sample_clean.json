@@ -1,0 +1,110 @@
+[
+  {
+    "scene_id": 1,
+    "start_time": 0.0,
+    "end_time": 47.366,
+    "visual_description": "Video này trình bày một chuỗi hình ảnh của một nữ sinh viên trẻ Việt Nam trong nhiều bối cảnh khác nhau, chủ yếu là trong khuôn viên trường học và các môi trường học thuật. Cô được thấy đang tạo dáng với các biểu tượng của thành tích học tập như gấu bông tốt nghiệp, bó hoa, và các bằng khen, huy chương. Đoạn phim nêu bật những thành tựu học thuật đáng nể của cô, bao gồm danh hiệu thủ khoa và các giải thưởng môn Hóa học. Toàn bộ video mang một không khí vui tươi, truyền cảm hứng, tôn vinh sự nỗ lực và thành công của cô gái.",
+    "speaker_transcript": "A: Một trong 9 thủ khoa khối A00 kỳ thi tốt nghiệp Trung học của Thông năm 2025 với 3.10 tuyệt đối, Nguyễn Lê Hiền Mai với các thành tích học tập đáng nể. Giải nhất kỳ thi học sinh giỏi cấp tỉnh năm học 2021-2022 Mồn Khóa Học được tuyển thẳng vào lớp chuyên hóa, chuyên học của Đông Chuyên Nhân Hương Khứ Thọ. Giải nhì và giải ba kỳ thi học sinh giỏi cấp tỉnh năm học 2024-2025 và năm 2023-2024 Mồn Khóa Học. Điểm trung bình tổng năm lớp 12 đạt 9.5, trong đó các môn toán, lý hóa, các kỳ học duy trì ở mức 9.8 đến 9.9. Tích cực tham gia các hoạt động đoàn thanh niên và hoạt động tình nguyện, ngoại khóa.",
+    "unique_speakers": ["A"],
+    "scene_type": "video_analyzed"
+  },
+  {
+    "scene_id": 2,
+    "start_time": 47.366,
+    "end_time": 53.600,
+    "visual_description": "Đoạn video thể hiện bốn cá nhân – ba nam và một nữ – đang ngồi quanh một chiếc bàn lớn hình bầu dục trong một trường quay truyền hình hiện đại và sáng sủa. Họ dường như đang tham gia vào một cuộc thảo luận nhóm, với một người đàn ông mặc vest sáng màu đang nói chuyện và ra hiệu tay một cách sôi nổi, trong khi những người còn lại chăm chú lắng nghe. Bối cảnh trường quay, với màn hình hiển thị lớn và ánh sáng chuyên nghiệp, tạo ra một không khí mang tính thông tin và cuốn hút, thường thấy trong các chương trình tin tức hoặc thời sự.",
+    "speaker_transcript": "B: Phải nói là những thành thức rất ấn tượng và chúng tôi cũng đã mời đến trường quay của chào buổi sáng ngày hôm nay. Em Nguyễn Lê Hiền",
+    "unique_speakers": ["B"],
+    "scene_type": "video_analyzed"
+  },
+  {
+    "scene_id": 3,
+    "start_time": 53.600,
+    "end_time": 60.866,
+    "visual_description": "Một đoạn từ chương trình truyền hình Việt Nam tập trung vào một nữ sinh trẻ tuổi, đầu tiên được quay cận cảnh trước phông nền có các công thức toán học, sau đó chuyển cảnh sang cô đang ngồi tại một bàn lớn trong studio. Cô gái đang tương tác với ba người đàn ông có thể là người dẫn chương trình hoặc khách mời, gợi ý đây là một buổi phỏng vấn hoặc thảo luận. Bối cảnh studio chuyên nghiệp, với các màn hình lớn hiển thị chủ đề học thuật và tiêu đề tin tức, tạo nên một không khí trang trọng và nhiều thông tin.",
+    "speaker_transcript": "B: hôm nay. Em Nguyễn Lê Hiền Mai là học sinh lớp 12 chuyên hóa trường Trung học phổ thông Truyền Hùng Vương, tỉnh Phú Thọ. Đã xuất sắc trở thành chủ khoa",
+    "unique_speakers": ["B"],
+    "scene_type": "video_analyzed"
+  },
+  {
+    "scene_id": 4,
+    "start_time": 60.866,
+    "end_time": 69.799,
+    "visual_description": "Video mở đầu với cận cảnh một nam phát thanh viên đang nói chuyện, phía sau anh là màn hình hiển thị hình ảnh minh họa sách và mũ tốt nghiệp. Sau đó, máy quay mở rộng khung hình, cho thấy một nhóm bốn người, gồm hai nam và hai nữ, đang ngồi quanh một chiếc bàn lớn hình bầu dục trong một trường quay truyền hình hiện đại. Bối cảnh studio được trang bị nhiều màn hình lớn, tạo cảm giác chuyên nghiệp cho một chương trình tin tức hoặc thảo luận. Không khí chung của video là trang trọng và mang tính thông tin.",
+    "speaker_transcript": "B: thủ khoa khối A00 toàn quốc trong kỳ thi tốt nghiệp Trung học phổ thông vừa qua. Xin cảm ơn Mai đã dành thời gian đến với chào buổi sáng ngày hôm nay. Và xin được giới thiệu",
+    "unique_speakers": ["B"],
+    "scene_type": "video_analyzed"
+  },
+  {
+    "scene_id": 5,
+    "start_time": 69.799,
+    "end_time": 79.766,
+    "visual_description": "Một phát thanh viên nam đang thuyết trình trong một trường quay truyền hình, với đồ họa rực rỡ ở bên trái mô tả một cuốn sách đang mở, một mũ tốt nghiệp và một chồng sách giáo khoa. Anh ấy đang nói chuyện một cách sinh động trực tiếp với máy quay, có lẽ đang thảo luận về thành tích học tập hoặc tin tức giáo dục. Cảnh quay truyền tải một bầu không khí chuyên nghiệp và nhiều thông tin, với tông màu tích cực và khích lệ, phù hợp với một chương trình phát sóng về giáo dục.",
+    "speaker_transcript": "B: với quý vị khán giả một lần nữa là em cũng là một trong 9 thí sinh trên cả nước đạt điểm tuyệt đối 3.10 ở tổ hợp toán vật lý hóa học này. Lúc này thì chắc chắn với Mai cảm xúc",
+    "unique_speakers": ["B"],
+    "scene_type": "video_analyzed"
+  },
+  {
+    "scene_id": 6,
+    "start_time": 79.766,
+    "end_time": 94.000,
+    "visual_description": "Video này cho thấy một cuộc phỏng vấn trong trường quay truyền hình, với một nữ sinh trẻ được ba người dẫn chương trình nam phỏng vấn xung quanh một chiếc bàn lớn. Nữ sinh, được giới thiệu là thủ khoa kỳ thi tốt nghiệp THPT năm 2025, chia sẻ về phương pháp học tập của mình trước phông nền xanh hiển thị các công thức toán học. Không khí của buổi trò chuyện mang tính giáo dục và truyền cảm hứng, thể hiện sự vui mừng và tự hào về thành tích học tập xuất sắc.",
+    "speaker_transcript": "B: ở tổ hợp toán vật lý hóa học này. Lúc này thì chắc chắn với Mai cảm xúc vui mừng vì kết quả vừa rồi vẫn đang được lan tỏa.\nC: Đúng không? Xin chào ba anh viên tập viên, xin chào tất cả quý vị khán giả. Em là Nguyễn Lê Hiền Mai và ngày hôm nay em rất tinh dự khi được nhận lời mời của VTV và có mặt tại chơi học buổi sáng ngày hôm nay ạ.\nB: Tôi nghĩ rằng là các khán giả truyền hình cũng như là",
+    "unique_speakers": ["B", "C"],
+    "scene_type": "video_analyzed"
+  },
+  {
+    "scene_id": 7,
+    "start_time": 94.000,
+    "end_time": 104.200,
+    "visual_description": "Bốn người, bao gồm một phụ nữ và ba người đàn ông, đang ngồi quanh một chiếc bàn lớn trong một trường quay truyền hình sáng sủa. Họ mặc trang phục chuyên nghiệp và đang tham gia vào một cuộc thảo luận, có thể là một chương trình đối thoại hoặc phỏng vấn, với tiêu đề trên màn hình phía dưới cho thấy chủ đề là \"Phương pháp học tập của thủ khoa kỳ thi tốt nghiệp THPT 2025\". Một trong những người đàn ông đang nói chuyện và ra hiệu, trong khi những người khác chăm chú lắng nghe, tạo nên một không khí trao đổi thông tin và tương tác. Tổng thể, cảnh quay mang lại cảm giác chuyên nghiệp, nghiêm túc và mang tính giáo dục, thường thấy trong các chương trình tin tức buổi sáng.",
+    "speaker_transcript": "B: khán giả truyền hình cũng như là cả ba chúng ta đã cảm thấy rất là ngưỡng mộ với thành tích này của em Mai. Không biết là em có thể chia sẻ một chút là em đã luyện tập như thế nào? Quá trình học tập của em diễn",
+    "unique_speakers": ["B"],
+    "scene_type": "video_analyzed"
+  },
+  {
+    "scene_id": 8,
+    "start_time": 104.200,
+    "end_time": 120.066,
+    "visual_description": "Video này hiển thị bốn người, gồm một nữ sinh và ba nam giới, đang ngồi quanh một bàn tròn lớn màu trắng trong một trường quay truyền hình. Nữ sinh mặc áo sơ mi trắng đang phát biểu vào micro, trong khi ba người đàn ông lắng nghe chăm chú, gợi ý một buổi phỏng vấn hoặc thảo luận. Bối cảnh phía sau là các màn hình kỹ thuật số màu xanh hiển thị công thức toán học và hình ảnh sách vở, cùng dòng chữ \"PHƯƠNG PHÁP HỌC TẬP CỦA THỦ KHOA KỲ THI TỐT NGHIỆP THPT 2025\", cho thấy đây là một chương trình mang tính giáo dục và truyền đạt kiến thức. Không khí chung của đoạn video thể hiện sự chuyên nghiệp, tập trung vào chủ đề học thuật và chia sẻ kinh nghiệm.",
+    "speaker_transcript": "B: trình học tập của em diễn ra ra sao để em có được.\nC: Kết Quả như vậy? Thưa ba anh, với các môn khoa tự nhiên như các môn khối A00 của em là toán vật lý và hóa học thì với em, em nghĩ đó là ba môn mà yêu cầu tính logic rất là cao, cần tư duy rất là nhiều. Chính vì vậy",
+    "unique_speakers": ["B", "C"],
+    "scene_type": "video_analyzed"
+  },
+  {
+    "scene_id": 9,
+    "start_time": 120.066,
+    "end_time": 125.866,
+    "visual_description": "Video quay cảnh năm người, một phụ nữ và bốn người đàn ông, đang ngồi xung quanh một chiếc bàn lớn hình bầu dục trong một trường quay truyền hình hiện đại. Họ đang tham gia vào một cuộc thảo luận hoặc phỏng vấn trực tiếp, với người phụ nữ ở bên trái dường như đang phát biểu. Phía sau là những màn hình lớn hiển thị thông tin chương trình và đồ họa liên quan đến sách vở, cùng với tiêu đề \"PHƯƠNG PHÁP HỌC TẬP CỦA THỦ KHOA KỲ THI TỐT NGHIỆP THPT 2025\". Bầu không khí chung rất chuyên nghiệp và trang trọng, cho thấy đây là một chương trình mang tính giáo dục và thông tin cao.",
+    "speaker_transcript": "C: em đã cố gắng để nắm bắt được bài trên lớp trực tiếp từ các thầy cô. Song song với đó",
+    "unique_speakers": ["C"],
+    "scene_type": "video_analyzed"
+  },
+  {
+    "scene_id": 10,
+    "start_time": 125.866,
+    "end_time": 138.266,
+    "visual_description": "Đoạn video ghi lại cảnh một nữ sinh đang trò chuyện cùng một nam MC trong chương trình \"Chào Buổi Sáng\" của VTV1. Họ đang thảo luận về \"Phương pháp học tập của Thủ khoa kỳ thi Tốt nghiệp THPT 2025,\" với cô gái chia sẻ những kinh nghiệm và suy nghĩ của mình. Bối cảnh là một trường quay truyền hình với phông nền xanh dương trừu tượng, tạo nên một không khí chuyên nghiệp và mang tính giáo dục.",
+    "speaker_transcript": "C: là em có tìm hiểu thêm một số những dạng bài tập trên mạng. Em nghĩ đấy là những yếu tố cần thiết để bản thân mình có thể vận dụng được thứ nhất là tư duy của mình, thứ hai là lý thuyết một cách",
+    "unique_speakers": ["C"],
+    "scene_type": "video_analyzed"
+  },
+  {
+    "scene_id": 11,
+    "start_time": 138.266,
+    "end_time": 153.766,
+    "visual_description": "Video cho thấy một cuộc thảo luận hoặc phỏng vấn trong một trường quay truyền hình. Một nữ sinh trẻ đang ngồi cùng ba người đàn ông, tất cả đều có vẻ đang tham gia vào một cuộc trò chuyện chuyên sâu. Nền phía sau họ là một màn hình lớn hiển thị các công thức toán học và biểu đồ, cùng với các biểu tượng liên quan đến giáo dục như sách và mũ tốt nghiệp. Dòng chữ phía dưới màn hình có nội dung \"PHƯƠNG PHÁP HỌC TẬP CỦA THỦ KHOA KỲ THI TỐT NGHIỆP THPT 2025\", cho thấy đây là một chương trình giáo dục tập trung vào bí quyết học tập và thành công trong các kỳ thi.",
+    "speaker_transcript": "C: tư duy của mình, thứ hai là lý thuyết một cách thực tiễn và hợp lý nhất có thể để áp dụng được vào bài thi. Vậy thì.\nB: Anh đang rất là tự đặt câu hỏi là không hiểu còn một cái bí quyết gì nữa không bên cạnh những cái mà em đã vừa nói đó cũng cơ bản thôi đúng không ạ? Cũng rất là cơ bản với cả một học sinh bình thường nhưng mà có cái bí quyết gì chăng ở đây không để",
+    "unique_speakers": ["B", "C"],
+    "scene_type": "video_analyzed"
+  },
+  {
+    "scene_id": 12,
+    "start_time": 153.766,
+    "end_time": 157.866,
+    "visual_description": "Video ghi lại một chương trình truyền hình trực tiếp từ trường quay của VTV1, trong đó có bốn người, bao gồm ba nam và một nữ, ngồi quanh một bàn lớn. Bối cảnh là một trường quay hiện đại với các màn hình lớn hiển thị công thức toán học và hình ảnh liên quan đến giáo dục, cùng với dòng chữ \"Chào Buổi Sáng\" và tiêu đề chương trình \"Phương pháp học tập của Thủ khoa kỳ thi tốt nghiệp THPT 2025\". Các khách mời đang thảo luận sôi nổi, với một cô gái trẻ mặc áo sơ mi trắng đang phát biểu, thể hiện một cuộc trò chuyện chuyên nghiệp và mang tính giáo dục.",
+    "speaker_transcript": "B: gì chăng ở đây không để được 3.10 đúng không ạ? Thực ra thì.\nC: Với em thì bí quyết thì cũng không có bí quyết gì cả.",
+    "unique_speakers": ["B", "C"],
+    "scene_type": "video_analyzed"
+  }
+]

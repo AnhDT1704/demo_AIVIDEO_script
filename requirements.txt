@@ -14,3 +14,7 @@ uvicorn[standard]>=0.24.0  # [standard] includes extras for production
 python-multipart>=0.0.6
 aiofiles>=23.2.1
 python-dotenv>=1.0.0  # for environment variables
+pvfalcon==2.0.1  # Speaker Diarization for scene boundaries
+pvcobra==2.0.1   # Voice Activity Detection for scene boundaries
+# AssemblyAI SDK (optional - we use direct API calls)
+assemblyai>=0.28.0

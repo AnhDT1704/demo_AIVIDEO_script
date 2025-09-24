@@ -12,6 +12,10 @@ MIN_DURATION = 30  # 30 seconds
 MAX_DURATION = 7200  # 2 hours
 SUPPORTED_FORMATS = ['mp4', 'avi', 'mov', 'mkv']
 
+# Video duration limits
+MIN_VIDEO_DURATION = 30  # seconds - can be bypassed with skip_duration_check=True
+MAX_VIDEO_DURATION = 3600  # 1 hour limit for processing
+
 # Processing settings
 SCENE_THRESHOLD = 70.0  # PySceneDetect threshold
 FRAME_SAMPLE_RATE = 1  # 1 frame per second
@@ -33,8 +37,18 @@ BLAZE_API_URL = "https://api.blaze.vn/v1/stt/transcribe?enable_segments=true"
 BLAZE_API_KEY = os.getenv('BLAZE_API_KEY')
 
 # Google AI Studio settings
-GOOGLE_AI_API_KEY = os.getenv('GOOGLE_AI_API_KEY')
+GOOGLE_AI_API_KEY = os.getenv('GOOGLE_AI_API_KEY')  # For frame analysis
+GOOGLE_AI_SCRIPT_API_KEY = os.getenv('GOOGLE_AI_SCRIPT_API_KEY')  # For script generation
 GEMINI_MODEL = "gemini-2.5-flash"
+
+CLAUDE_API_KEY = os.getenv('CLAUDE_API_KEY')
+
+ASSEMBLYAI_API_KEY = os.getenv('ASSEMBLYAI_API_KEY')
+
+# Add Gemini API configuration with proper error handling
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+
+
 
 # Create directories if not exist
 for directory in [UPLOAD_DIR, TEMP_DIR, OUTPUT_DIR]:
