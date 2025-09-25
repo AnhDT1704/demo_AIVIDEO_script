@@ -4,7 +4,7 @@ messageFormat = "%(asctime)s %(message)s"
 
 [runner]
 magicEnabled = false
-installTracer = false
+# Removed deprecated installTracer option
 
 [server]
 maxUploadSize = 200
