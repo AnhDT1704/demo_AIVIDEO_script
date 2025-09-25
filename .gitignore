@@ -20,6 +20,8 @@ ENV/
 
 # Temporary files
 data/temp/
+data/outputs/
+temp_uploads/
 *.mp4
 *.wav
 *.m4a

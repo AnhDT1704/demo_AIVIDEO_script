@@ -1,18 +1,21 @@
+[logger]
+level = "error"
+messageFormat = "%(asctime)s %(message)s"
+
+[runner]
+magicEnabled = false
+installTracer = false
+
 [server]
-headless = true
-port = $PORT
-enableCORS = false
-enableXsrfProtection = false
-
-[theme]
-primaryColor = "#4CAF50"
-backgroundColor = "#0E1117"
-secondaryBackgroundColor = "#262730"
-textColor = "#FAFAFA"
-
-[browser]
-gatherUsageStats = false
+maxUploadSize = 200
+runOnSave = false
 
 [client]
-caching = true
 showErrorDetails = false
+
+[theme]
+base = "dark"
+primaryColor = "#4CAF50"
+backgroundColor = "#0e1117"
+secondaryBackgroundColor = "#262730"
+textColor = "#fafafa"

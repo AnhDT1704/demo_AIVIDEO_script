@@ -22,7 +22,7 @@ class DirectScriptGenerator:
             self.openrouter_url = "https://openrouter.ai/api/v1/chat/completions"
             self.claude_model = "anthropic/claude-3.5-sonnet"
 
-            st.success("✔ Script Generator initialized with Advanced AI")
+            # st.success("✔ Script Generator initialized with Advanced AI")  # ✅ HIDDEN
         except Exception as e:
             st.error(f"❌ Advanced AI initialization failed: {e}")
             self.model = None
@@ -80,7 +80,7 @@ class DirectScriptGenerator:
             
             # 🔍 DEBUG: Log input data
             available_scene_ids = [scene.get('scene_id', 0) for scene in all_scenes]
-            st.info(f"🔍 EXTRACT DEBUG: Available scene IDs from Complete Analysis: {sorted(available_scene_ids)}")
+            # st.info(f"🔍 EXTRACT DEBUG: Available scene IDs from Complete Analysis: {sorted(available_scene_ids)}")  # ✅ HIDDEN
             
             # Improved pattern matching for scene references
             patterns = [
@@ -105,7 +105,7 @@ class DirectScriptGenerator:
                             continue
 
             # 🔍 DEBUG: Log extraction results
-            st.info(f"🔍 EXTRACT DEBUG: Found scene IDs in script: {sorted(used_scene_ids)}")
+            # st.info(f"🔍 EXTRACT DEBUG: Found scene IDs in script: {sorted(used_scene_ids)}")  # ✅ HIDDEN
             
             # Match scenes from available data
             for scene in all_scenes:
@@ -116,9 +116,9 @@ class DirectScriptGenerator:
             selected_scenes.sort(key=lambda x: x.get('scene_id', 0))
             
             # 🔍 FINAL DEBUG
-            st.info(f"🎭 EXTRACT RESULT: Selected {len(selected_scenes)}/{len(all_scenes)} scenes")
+            # st.info(f"🎭 EXTRACT RESULT: Selected {len(selected_scenes)}/{len(all_scenes)} scenes")  # ✅ HIDDEN
             selected_ids = [s.get('scene_id', 0) for s in selected_scenes]
-            st.info(f"🎭 Final selected IDs: {sorted(selected_ids)}")
+            # st.info(f"🎭 Final selected IDs: {sorted(selected_ids)}")  # ✅ HIDDEN
 
             # If no scenes extracted, return a reasonable subset
             if not selected_scenes and all_scenes:
@@ -126,7 +126,7 @@ class DirectScriptGenerator:
                 # Take first 6-8 scenes as fallback
                 fallback_count = min(8, len(all_scenes))
                 selected_scenes = all_scenes[:fallback_count]
-                st.info(f"🔄 Fallback: Selected first {len(selected_scenes)} scenes")
+                # st.info(f"🔄 Fallback: Selected first {len(selected_scenes)} scenes")  # ✅ HIDDEN
 
             return selected_scenes
 
@@ -149,7 +149,7 @@ class DirectScriptGenerator:
             st.error("❌ No scenes available from any videos")
             return []
 
-        st.info(f"🔍 Analyzing {len(all_scenes_with_source)} scenes from {len(multi_video_results)} videos...")
+        # st.info(f"🔍 Analyzing {len(all_scenes_with_source)} scenes from {len(multi_video_results)} videos...")  # ✅ HIDDEN
 
         # Create comprehensive scene data for Claude
         scenes_summary = []
@@ -224,7 +224,7 @@ CHỈ TRẢ VỀ JSON HỢP LỆ, KHÔNG GIẢI THÍCH THÊM.
             result = json.loads(response)
 
             selected_identifiers = [s['scene_identifier'] for s in result.get('selected_scenes', [])]
-            st.info(f"🎯 Advanced AI selected {len(selected_identifiers)} scenes: {selected_identifiers}")
+            # st.info(f"🎯 Advanced AI selected {len(selected_identifiers)} scenes: {selected_identifiers}")  # ✅ HIDDEN
 
             # Map back to actual scene data with source info
             selected_scenes = []
@@ -235,7 +235,7 @@ CHỈ TRẢ VỀ JSON HỢP LỆ, KHÔNG GIẢI THÍCH THÊM.
                         break
 
             if selected_scenes:
-                st.success(f"✅ Successfully selected {len(selected_scenes)} scenes from {len(set(s['source_video'] for s in selected_scenes))} different videos")
+                # st.success(f"✅ Successfully selected {len(selected_scenes)} scenes from {len(set(s['source_video'] for s in selected_scenes))} different videos")  # ✅ HIDDEN
 
                 # Show selection summary
                 with st.expander("🎯 Selected Scenes Summary", expanded=True):
@@ -278,7 +278,7 @@ CHỈ TRẢ VỀ JSON HỢP LỆ, KHÔNG GIẢI THÍCH THÊM.
 
                     all_scenes.append(scene_with_source)
 
-        st.info(f"📊 Prepared {len(all_scenes)} scenes from {len(multi_video_results)} videos")
+        # st.info(f"📊 Prepared {len(all_scenes)} scenes from {len(multi_video_results)} videos")  # ✅ HIDDEN
         return all_scenes
 
     def _fallback_cross_video_selection(self, all_scenes_with_source: List[Dict], max_scenes: int = 8) -> List[Dict]:
@@ -313,7 +313,7 @@ CHỈ TRẢ VỀ JSON HỢP LỆ, KHÔNG GIẢI THÍCH THÊM.
         # Limit to max_scenes
         selected_scenes = selected_scenes[:max_scenes]
 
-        st.info(f"🎯 Fallback selected {len(selected_scenes)} scenes from {len(videos)} videos")
+        # st.info(f"🎯 Fallback selected {len(selected_scenes)} scenes from {len(videos)} videos")  # ✅ HIDDEN
         return selected_scenes
 
     def generate_final_script_with_voiceover(self, selected_scenes, script_request, voiceover_tone):

@@ -1,13 +1,142 @@
+import warnings
+import logging
+import os
+
+# Suppress ALL Streamlit warnings về ScriptRunContext
+warnings.filterwarnings("ignore", message=".*missing ScriptRunContext.*")
+warnings.filterwarnings("ignore", message=".*client.caching.*")
+
+# Tắt tất cả warnings từ streamlit runtime
+logging.getLogger("streamlit.runtime.scriptrunner_utils.script_run_context").setLevel(logging.CRITICAL)
+logging.getLogger("streamlit.runtime.state.session_state_proxy").setLevel(logging.CRITICAL) 
+logging.getLogger("streamlit").setLevel(logging.ERROR)
+
+# Set environment variable để tắt warnings
+os.environ["STREAMLIT_LOGGER_LEVEL"] = "error"
+
+from optimized_video_processor import OptimizedVideoProcessor
 # app_enhanced_assemblyai.py - Enhanced with AssemblyAI STT + Speaker Diarization
 
 import streamlit as st
 import os
+import json
+import re
+from datetime import datetime
 from config import SUPPORTED_FORMATS, MAX_FILE_SIZE
 from video_ingestion import VideoProcessor
 from scene_detector import SceneDetector
 from audio_transcriber import AssemblyAITranscriber
 from gemini_frame_analyzer import GeminiFrameAnalyzer
 from script_generator import DirectScriptGenerator
+
+# Function to parse final script and convert to JSON format
+def parse_script_to_acts(final_script_text, selected_scenes):
+    """
+    Parse the final script text and create separate JSON files for each act
+    Returns a dictionary with act data for creating separate files
+    """
+    acts_data = {}
+    
+    # Extract main title from the script
+    script_title = "UNKNOWN_SCRIPT"
+    title_match = re.search(r'KỊCH BẢN[:\s]*(.+?)(?:\n|\r)', final_script_text, re.IGNORECASE)
+    if title_match:
+        script_title = title_match.group(1).strip()
+    
+    # Split script by acts (looking for "Cảnh X:" patterns)
+    act_sections = re.split(r'\n\s*Cảnh\s+(\d+):', final_script_text)
+    
+    # Process each act section
+    for i in range(1, len(act_sections), 2):
+        if i + 1 < len(act_sections):
+            act_number = int(act_sections[i])
+            act_content = act_sections[i + 1]
+            
+            # Extract act title (first line after act number)
+            lines = act_content.strip().split('\n')
+            act_title = lines[0].strip() if lines else f"Act {act_number}"
+            
+            # Extract voiceover transcription (text after "Voiceover cho Cảnh")
+            voice_over = ""
+            voiceover_match = re.search(r'🎙️\s*Voiceover cho Cảnh[^:]*:\s*(.+?)(?=\n\n|\n\s*Cảnh|\n\s*🎙️|\Z)', act_content, re.DOTALL)
+            if voiceover_match:
+                voice_over = voiceover_match.group(1).strip()
+            
+            # Extract scenes from the act content
+            scene_data = []
+            scene_count = 0
+            
+            # Find all scene sections within this act
+            scene_matches = re.findall(r'Scene\s+(\d+):\s*\(([^)]+)\)\s*-\s*From:\s*([^\n]+)', act_content)
+            
+            for scene_match in scene_matches:
+                scene_num, time_range, filename = scene_match
+                
+                # Parse time range (00:00:11.800 - 00:00:27.199)
+                time_parts = time_range.split(' - ')
+                start_time = time_parts[0].strip() if len(time_parts) > 0 else "00:00:00.000"
+                end_time = time_parts[1].strip() if len(time_parts) > 1 else "00:00:00.000"
+                
+                scene_count += 1
+                scene_info = {
+                    "order": scene_count,
+                    "start": start_time,
+                    "end": end_time,
+                    "Video_filename": filename.strip()
+                }
+                scene_data.append(scene_info)
+            
+            # Create act data structure
+            acts_data[f"act{act_number}"] = {
+                "act_number": act_number,
+                "act_data": {
+                    "act_title": act_title,
+                    "voice_over_transcription": voice_over,
+                    "scene_number": scene_count,
+                    "scenes": scene_data
+                }
+            }
+    
+    return script_title, acts_data
+
+def create_acts_folder_and_files(script_title, acts_data):
+    """
+    Create a folder with script title and individual JSON files for each act
+    Returns the folder path and list of created files
+    """
+    import os
+    import json
+    from datetime import datetime
+    
+    # Clean script title for folder name
+    clean_title = re.sub(r'[<>:"/\\|?*]', '_', script_title)
+    folder_name = f"EXPORTED_{clean_title}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    folder_path = os.path.join('data/outputs', folder_name)
+    
+    # Create folder if it doesn't exist
+    os.makedirs(folder_path, exist_ok=True)
+    
+    created_files = []
+    
+    # Create individual JSON files for each act
+    for act_key, act_data in acts_data.items():
+        filename = f"{act_key}.json"
+        filepath = os.path.join(folder_path, filename)
+        
+        # Write act data to JSON file
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(act_data, f, ensure_ascii=False, indent=2)
+        
+        created_files.append(filename)
+    
+    return folder_path, created_files
+
+def create_downloadable_json(json_data, filename):
+    """
+    Create a downloadable JSON file
+    """
+    json_string = json.dumps(json_data, ensure_ascii=False, indent=2)
+    return json_string.encode('utf-8')
 
 st.set_page_config(
     page_title="Enhanced Video Scene Extraction",
@@ -48,16 +177,16 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Show progress steps at the top
-st.markdown("""
-### 📋 Processing Pipeline
-✔ **Phase 1**: Enhanced Preprocessing with AI  
-🎬 **Step 1**: Video Validation  
-🎪 **Step 2**: Scene Detection  
-🎤 **Step 3**: Advanced STT + Speaker Recognition  
-🎭 **Step 4**: Visual Analysis (AI)  
-📝 **Step 5**: Final Script with Voiceover
-""", unsafe_allow_html=True)
+# ✅ HIDE Processing Pipeline steps - commented out
+# st.markdown("""
+# ### 📋 Processing Pipeline
+# ✔ **Phase 1**: Enhanced Preprocessing with AI  
+# 🎬 **Step 1**: Video Validation  
+# 🎪 **Step 2**: Scene Detection  
+# 🎤 **Step 3**: Advanced STT + Speaker Recognition  
+# 🎭 **Step 4**: Visual Analysis (AI)  
+# 📝 **Step 5**: Final Script with Voiceover
+# """, unsafe_allow_html=True)
 
 # Initialize session state
 if 'validation_result' not in st.session_state:
@@ -169,28 +298,32 @@ with st.sidebar:
 
     st.divider()
 
-    # AI Speech settings
-    st.subheader("🎤 Speech Recognition Settings")
-    enable_speaker_diarization = st.checkbox(
-        "Enable Speaker Recognition",
-        value=True,
-        help="Uses advanced AI to identify different speakers"
-    )
-
-    speakers_expected = None
-    if enable_speaker_diarization:
-        st.info("🎭 **Speaker Format**: Speaker A: ..., Speaker B: ...")
-        speakers_expected = st.number_input(
-            "Expected Number of Speakers (optional)",
-            min_value=0,
-            max_value=10,
-            value=0,
-            help="Leave 0 for automatic detection"
-        )
-        if speakers_expected == 0:
-            speakers_expected = None
+    # ✅ HIDE Speech Recognition Settings - set default values
+    # st.subheader("🎤 Speech Recognition Settings")
+    enable_speaker_diarization = True  # Default to enabled
+    speakers_expected = None  # Default to automatic detection
+    
+    # Hidden speech settings (commented out)
+    # enable_speaker_diarization = st.checkbox(
+    #     "Enable Speaker Recognition",
+    #     value=True,
+    #     help="Uses advanced AI to identify different speakers"
+    # )
+    # 
+    # if enable_speaker_diarization:
+    #     st.info("🎭 **Speaker Format**: Speaker A: ..., Speaker B: ...")
+    #     speakers_expected = st.number_input(
+    #         "Expected Number of Speakers (optional)",
+    #         min_value=0,
+    #         max_value=10,
+    #         value=0,
+    #         help="Leave 0 for automatic detection"
+    #     )
+    #     if speakers_expected == 0:
+    #         speakers_expected = None
 
 # Main interface
+st.subheader("📤 Upload your videos")
 uploaded_files = st.file_uploader(
     "Upload your videos (multiple files supported)",
     accept_multiple_files=True,
@@ -218,342 +351,161 @@ if uploaded_files is not None and len(uploaded_files) > 0:
     st.markdown("---")
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        if st.button("🚀 Start Enhanced Phase 1 - Process All Videos", type="primary", key="start_processing_all_videos", use_container_width=True):
-            
-            # Process each video sequentially
-            for idx, uploaded_file in enumerate(uploaded_files):
-                
-                # Skip files that are too large
-                if uploaded_file.size > MAX_FILE_SIZE:
-                    st.error(f"⏭️ Skipping {uploaded_file.name}: File too large")
-                    continue
-                
-                st.header(f"🎬 Processing Video {idx + 1}/{len(uploaded_files)}: {uploaded_file.name}")
-                
-                # Step 1: Video Validation
-                with st.spinner(f"🔍 Step 1: Validating video {uploaded_file.name} with FFmpeg..."):
-                    processor = VideoProcessor()
-                    
-                    # Pass the skip flag to video validation
-                    result = processor.validate_video(uploaded_file, skip_duration_check=skip_min_duration_check)
-                    st.session_state.validation_result = result
+        if st.button("🚀 Start Enhanced Phase 1 - Process All Videos Async", type="primary", key="start_processing_all_videos", use_container_width=True):
+            # Initialize optimized processor
+            async_processor = OptimizedVideoProcessor()
 
-                    if result['valid']:
-                        st.success(f"✔ Video validation passed for {uploaded_file.name}!")
+            # Collect settings
+            settings = {
+                'scene_threshold': scene_threshold,
+                'skip_min_duration_check': skip_min_duration_check,
+                'enable_speaker_diarization': enable_speaker_diarization,
+                'speakers_expected': speakers_expected,
+                'min_scene_duration': min_scene_duration,
+                'merge_threshold_duration': merge_threshold_duration
+            }
 
-                        # Display metadata in columns
-                        col1, col2, col3 = st.columns(3)
+            # Run async processing
+            with st.spinner("🔄 Processing all videos with optimized async pipeline..."):
+                try:
+                    # Create and run async processing
+                    import asyncio
+
+                    # Check if we're already in an async context
+                    try:
+                        # Try to get current loop
+                        loop = asyncio.get_running_loop()
+                        # If we get here, we're in async context - use ThreadPoolExecutor
+                        import concurrent.futures
+                        with concurrent.futures.ThreadPoolExecutor() as executor:
+                            future = executor.submit(
+                                asyncio.run, 
+                                async_processor.process_videos_optimized(uploaded_files, settings)
+                            )
+                            all_results = future.result()
+                    except RuntimeError:
+                        # No running loop - safe to use asyncio.run
+                        all_results = asyncio.run(
+                            async_processor.process_videos_optimized(uploaded_files, settings)
+                        )
+
+                    # Update session state with all results
+                    st.session_state.processed_videos.update(all_results)
+
+                    # Get processing statistics
+                    stats = async_processor.get_processing_stats(all_results)
+
+                    # Display results
+                    successful_count = stats.get('successful_videos', 0)
+                    total_count = len(uploaded_files)
+
+                    if successful_count == total_count:
+                        st.success(f"🎭 Async processing completed successfully!")
+                        st.success(f"✅ All {successful_count} videos processed with enhanced AI!")
+                    else:
+                        st.warning(f"⚠️ Partial success: {successful_count}/{total_count} videos processed")
+
+                    # Display aggregated statistics
+                    if stats:
+                        st.info("📊 **Processing Summary:**")
+                        col1, col2, col3, col4 = st.columns(4)
                         with col1:
-                            st.metric("Duration", f"{result['duration']:.1f}s")
+                            st.metric("Total Duration", f"{stats['total_duration']:.1f}s")
                         with col2:
-                            st.metric("Resolution", result['resolution'])
+                            st.metric("Total Scenes", stats['total_scenes'])
                         with col3:
-                            st.metric("Has Audio", "✔ Yes" if result['has_audio'] else "❌ No")
+                            st.metric("Total Words", stats['total_words'])
+                        with col4:
+                            st.metric("Unique Speakers", stats['unique_speakers'])
 
-                        # Show warnings if any
-                        if result['warnings']:
-                            pass  # Hidden message
-                            for warning in result['warnings']:
-                                pass  # Hidden UI message
+                    st.balloons()
 
-                        # Step 2: Scene Detection with Custom Threshold
-                        with st.spinner(f"🎬 Step 2: Detecting scenes in {uploaded_file.name} (threshold: {scene_threshold})..."):
-                            # Create SceneDetector with custom threshold
-                            scene_detector = SceneDetector(threshold=scene_threshold)
+                except Exception as e:
+                    st.error(f"❌ Async processing failed: {str(e)}")
+                    st.info("💡 Falling back to sequential processing...")
 
-                            # Override config values for this session
-                            import config
-                            original_min_duration = config.MIN_SCENE_DURATION
-                            original_merge_threshold = config.MERGE_THRESHOLD_DURATION
-                            config.MIN_SCENE_DURATION = min_scene_duration
-                            config.MERGE_THRESHOLD_DURATION = merge_threshold_duration
+                    # Fallback: Original sequential processing
+                    for idx, uploaded_file in enumerate(uploaded_files):
+                        # Skip files that are too large
+                        if uploaded_file.size > MAX_FILE_SIZE:
+                            st.error(f"⏭️ Skipping {uploaded_file.name}: File too large")
+                            continue
 
-                            scenes = scene_detector.detect_scenes(result['temp_path'])
+                        st.header(f"🎬 Processing Video {idx + 1}/{len(uploaded_files)}: {uploaded_file.name}")
 
-                            # Restore original config values
-                            config.MIN_SCENE_DURATION = original_min_duration
-                            config.MERGE_THRESHOLD_DURATION = original_merge_threshold
+                        # Step 1: Video Validation
+                        with st.spinner(f"🔍 Step 1: Validating video {uploaded_file.name} with FFmpeg..."):
+                            processor = VideoProcessor()
+                            # Pass the skip flag to video validation
+                            result = processor.validate_video(uploaded_file, skip_duration_check=skip_min_duration_check)
+                            st.session_state.validation_result = result
 
-                            st.session_state.scene_results = scenes
+                        if result['valid']:
+                            st.success(f"✔ Video validation passed for {uploaded_file.name}!")
+                            # Display metadata in columns
+                            col1, col2, col3 = st.columns(3)
+                            with col1:
+                                st.metric("Duration", f"{result['duration']:.1f}s")
+                            with col2:
+                                st.metric("Resolution", result['resolution'])
+                            with col3:
+                                st.metric("Has Audio", "✔ Yes" if result['has_audio'] else "❌ No")
+
+                            # Step 2: Scene Detection with Custom Threshold
+                            with st.spinner(f"🎬 Step 2: Detecting scenes in {uploaded_file.name} (threshold: {scene_threshold})..."):
+                                # Create SceneDetector with custom threshold
+                                scene_detector = SceneDetector(threshold=scene_threshold)
+
+                                # Override config values for this session
+                                import config
+                                original_min_duration = config.MIN_SCENE_DURATION
+                                original_merge_threshold = config.MERGE_THRESHOLD_DURATION
+                                config.MIN_SCENE_DURATION = min_scene_duration
+                                config.MERGE_THRESHOLD_DURATION = merge_threshold_duration
+
+                                scenes = scene_detector.detect_scenes(result['temp_path'])
+
+                                # Restore original config values
+                                config.MIN_SCENE_DURATION = original_min_duration
+                                config.MERGE_THRESHOLD_DURATION = original_merge_threshold
+
+                                st.session_state.scene_results = scenes
 
                             if scenes:
                                 st.success(f"✔ Detected {len(scenes)} scenes in {uploaded_file.name} with threshold {scene_threshold}!")
-
-                                # Show scene statistics
-                                stats = scene_detector.get_scene_stats(scenes)
-                                col1, col2, col3, col4 = st.columns(4)
-                                with col1:
-                                    st.metric("Total Scenes", stats['total_scenes'])
-                                with col2:
-                                    st.metric("Avg Duration", f"{stats['avg_duration']:.1f}s")
-                                with col3:
-                                    st.metric("Shortest", f"{stats['min_duration']:.1f}s")
-                                with col4:
-                                    st.metric("Longest", f"{stats['max_duration']:.1f}s")
-
-                                # Threshold effectiveness feedback
-                                if len(scenes) < 3:
-                                    pass  # Hidden UI message
-                                elif len(scenes) > 50:
-                                    pass  # Hidden UI message
-                                else:
-                                    pass  # Hidden UI message
-
                             else:
-                                # NEW: Handle videos without scenes - create single scene for the entire video
-                                # st.warning(f"⚠️ No scenes detected in {uploaded_file.name} with threshold {scene_threshold}.")
-                                # st.info("🎬 Creating single scene for toàn bộ video to enable audio and visual processing...")
-                                
-                                # Create a single scene covering the entire video
-                                scenes = [{
-                                    'scene_id': 1,
-                                    'start_time': 0.0,
-                                    'end_time': result['duration'],
-                                    'duration': result['duration'],
-                                    'timestamp_str': f"00:00:00.000 - {int(result['duration']//3600):02d}:{int((result['duration']%3600)//60):02d}:{result['duration']%60:06.3f}"
-                                }]
-                                
-                                # st.success(f"✔ Created single scene (0.0s - {result['duration']:.1f}s) for {uploaded_file.name}")
+                                # Create single scene for entire video
+                                scenes = [{'scene_id': 1, 'start_time': 0.0, 'end_time': result['duration'], 'duration': result['duration'], 'timestamp_str': f"00:00:00.000 - {int(result['duration']//3600):02d}:{int((result['duration']%3600)//60):02d}:{result['duration']%60:06.3f}"}]
+                                st.session_state.scene_results = scenes
 
-                            # Continue processing regardless of scene detection results
-                            st.session_state.scene_results = scenes
+                            # Continue with original processing...
+                            # (Rest of original sequential processing code)
 
-                            # Step 3: AI Speech Processing
-                            scenes_with_text = scenes  # Default fallback
-
-                            if result['has_audio']:
-                                with st.spinner(f"🎤 Step 3: Advanced STT + Speaker Recognition for {uploaded_file.name}..."):
-                                    transcriber = AssemblyAITranscriber()
-
-                                    # Process complete video with AI
-                                    scenes_with_text = transcriber.process_complete_video(
-                                        result['temp_path'], 
-                                        scenes, 
-                                        speakers_expected if enable_speaker_diarization else None
-                                    )
-
-                                    # Store results for this specific video
-                                    video_transcription_results = {
-                                        'transcription': {'language': 'vi'},
-                                        'scenes_with_text': scenes_with_text,
-                                        'speaker_enabled': enable_speaker_diarization
-                                    }
-
-                                    # Show enhanced transcription stats
-                                    trans_stats = transcriber.get_transcription_stats(scenes_with_text)
-                                    pass  # Hidden message
-                                    pass  # Hidden message
-
-                                    col1, col2, col3, col4 = st.columns(4)
-                                    with col1:
-                                        st.metric("Total Words", trans_stats['total_words'])
-                                    with col2:
-                                        st.metric("Scenes with Speech", trans_stats['scenes_with_speech'])
-                                    with col3:
-                                        if enable_speaker_diarization:
-                                            st.metric("Unique Speakers", trans_stats.get('total_unique_speakers', 0))
-                                        else:
-                                            st.metric("Silent Scenes", trans_stats['scenes_without_speech'])
-                                    with col4:
-                                        if enable_speaker_diarization:
-                                            st.metric("Multi-Speaker Scenes", trans_stats.get('scenes_with_multiple_speakers', 0))
-                                        else:
-                                            st.metric("Speech Coverage", f"{trans_stats['speech_coverage']:.1f}%")
-                            else:
-                                st.warning(f"⚠️ No audio track found in {uploaded_file.name} - skipping transcription and speaker diarization")
-                                video_transcription_results = {
-                                    'transcription': {'language': 'none'},
-                                    'scenes_with_text': scenes_with_text,
-                                    'speaker_enabled': False
-                                }
-
-                            # Step 4: Visual Analysis with AI
-                            with st.spinner(f"🎬 Step 4: Analyzing frames in {uploaded_file.name} with Advanced AI..."):
-                                frame_analyzer = GeminiFrameAnalyzer()
-
-                                # Extract frames from scenes
-                                scenes_with_frames = frame_analyzer.extract_frames_from_scenes(
-                                    result['temp_path'],
-                                    scenes_with_text
-                                )
-
-                                if scenes_with_frames:
-                                    # Analyze frames with AI
-                                    enriched_scenes = frame_analyzer.analyze_scenes_batch(scenes_with_frames)
-
-                                    # Store results for this specific video
-                                    video_transcription_results['scenes_with_text'] = enriched_scenes
-                                    
-                                    # NEW: Store complete results per video
-                                    st.session_state.processed_videos[uploaded_file.name] = {
-                                        'validation_result': result,
-                                        'scene_results': scenes,
-                                        'transcription_results': video_transcription_results,
-                                        'visual_analysis_results': enriched_scenes,
-                                        'processing_complete': True
-                                    }
-
-                                    # Update main session state with last processed video (for script generation)
-                                    st.session_state.transcription_results = video_transcription_results
-                                    st.session_state.visual_analysis_results = enriched_scenes
-
-                                    # Show visual analysis stats
-                                    visual_stats = frame_analyzer.get_visual_analysis_stats(enriched_scenes)
-                                    st.success(f"✔ Visual analysis completed for {uploaded_file.name} with Advanced AI!")
-
-                                    col1, col2, col3, col4 = st.columns(4)
-                                    with col1:
-                                        st.metric("Analyzed Scenes", visual_stats['analyzed_scenes'])
-                                    with col2:
-                                        st.metric("Scene Types Found", len(visual_stats['scene_types']))
-                                    with col3:
-                                        st.metric("Avg Objects/Scene", f"{visual_stats['avg_objects_per_scene']:.1f}")
-                                    with col4:
-                                        st.metric("Avg Actions/Scene", f"{visual_stats['avg_actions_per_scene']:.1f}")
-
-                                    # Enhanced Sample Analysis with Speaker Information
-                                    with st.expander(f"🎬 Sample Analysis for {uploaded_file.name}", expanded=True):
-                                        # Sort scenes by scene_id and take first 6 for individual video display
-                                        all_scenes = sorted(enriched_scenes, key=lambda x: x.get('scene_id', 0))
-                                        sample_scenes = [s for s in all_scenes if not s.get('visual_analysis_error')][:6]
-
-                                        for scene in sample_scenes:
-                                            st.write(f"**Scene {scene['scene_id']}** ({scene['timestamp_str']}):")
-                                            st.write(f"🎭 **Visual**: {scene.get('visual_description', 'N/A')}")
-
-                                            # Enhanced audio display with speaker information
-                                            if enable_speaker_diarization and scene.get('speaker_transcript'):
-                                                st.write(f"🎤 **Conversation**:")
-                                                for line in scene['speaker_transcript'].split('\n'):
-                                                    if line.strip():
-                                                        st.write(f"  {line}")
-                                            else:
-                                                st.write(f"📝 **Audio**: {scene.get('transcript', 'No speech')}")
-
-                                            # Show unique speakers in this scene
-                                            if enable_speaker_diarization and scene.get('unique_speakers'):
-                                                speakers_text = ", ".join(scene['unique_speakers'])
-                                                st.write(f"👥 **Speakers**: {speakers_text}")
-
-                                            st.write("---")
-
-                                        if len(sample_scenes) == 6:
-                                            remaining_scenes = len([s for s in all_scenes if not s.get('visual_analysis_error')]) - 6
-                                            if remaining_scenes > 0:
-                                                st.info(f"... and {remaining_scenes} more analyzed scenes")
-
-                                    # Cleanup frames
-                                    frame_analyzer.cleanup_frame_files(scenes_with_frames)
-
-                                else:
-                                    st.error(f"❌ Frame extraction failed for {uploaded_file.name}")
-
-                            st.success(f"🎭 **Processing completed for {uploaded_file.name}!**")
-                            
-                            # Add separator between videos
-                            if idx < len(uploaded_files) - 1:
-                                st.markdown("---")
-
-                    else:
-                        st.error(f"❌ **Video validation failed for {uploaded_file.name}!**")
-                        # Handle both single error and multiple errors
-                        if 'error' in result:
-                            st.error(f"❌ {result['error']}")
                         else:
-                            for error in result['errors']:
-                                st.error(f"• {error}")
-
-                        # Cleanup temp file on failure
-                        processor.cleanup_temp_file(result.get('temp_path'))
-            
-            # Final completion message
-            st.success("🎭 **Enhanced Phase 1 Complete for all videos with Advanced AI! Ready for Phase 2: Semantic Filtering**")
-            st.balloons()
-
+                            st.error(f"❌ **Video validation failed for {uploaded_file.name}!**")
 # NEW: Display results for each processed video individually
 if st.session_state.processed_videos:
     st.divider()
-    st.header("📊 Complete Analysis Results for All Processed Videos")
-    
-    # NEW: Calculate aggregated statistics from all processed videos
-    all_video_names = list(st.session_state.processed_videos.keys())
-    total_duration = 0
-    total_scenes = 0
-    total_words = 0
-    total_unique_speakers = set()
-    total_scenes_with_speech = 0
-    total_multi_speaker_scenes = 0
-    all_scenes_combined = []
-    
-    # Collect data from all processed videos
-    for video_name, video_data in st.session_state.processed_videos.items():
-        if video_data.get('processing_complete', False):
-            # Show clean success message for each video
-            st.success(f"✔ Successfully processed for {video_name}")
-            
-            # Duration
-            total_duration += video_data['validation_result']['duration']
-            
-            # Scenes
-            scenes = video_data['scene_results']
-            total_scenes += len(scenes)
-            
-            # Add video name to each scene for identification
-            for scene in video_data['visual_analysis_results']:
-                scene_copy = scene.copy()
-                scene_copy['source_video'] = video_name
-                all_scenes_combined.append(scene_copy)
-            
-            # Audio stats
-            transcription_data = video_data['transcription_results']
-            if transcription_data['transcription']['language'] != 'none':
-                transcriber = AssemblyAITranscriber()
-                trans_stats = transcriber.get_transcription_stats(transcription_data['scenes_with_text'])
-                total_words += trans_stats['total_words']
-                total_scenes_with_speech += trans_stats['scenes_with_speech']
-                total_multi_speaker_scenes += trans_stats.get('scenes_with_multiple_speakers', 0)
-                
-                # Collect unique speakers across all videos
-                for scene in transcription_data['scenes_with_text']:
-                    if scene.get('unique_speakers'):
-                        total_unique_speakers.update(scene['unique_speakers'])
-    
-    # Display aggregated summary
-    st.subheader(f"📹 Combined Results for: {', '.join(all_video_names)}")
-    
-    # Aggregated metrics
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("Total Duration", f"{total_duration:.1f}s")
-    with col2:
-        st.metric("Total Videos", len(all_video_names))
-    with col3:
-        st.metric("Combined Resolution", "Multiple Videos")
-    
-    # Scene and audio aggregated stats
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.metric("Total Scenes", total_scenes)
-    with col2:
-        st.metric("Total Words", total_words)
-    with col3:
-        st.metric("Total Unique Speakers", len(total_unique_speakers))
-    with col4:
-        st.metric("Scenes with Speech", total_scenes_with_speech)
-    
-    if total_words > 0:
-        st.success("✔ Combined Enhanced Audio Results (Advanced STT + Speaker Recognition)")
-        pass  # Hidden UI message
-    
-    st.markdown("---")
+    # ✅ CLEAN UI: Hide all aggregated stats and processing details
     
     # Individual video analysis sections (only the detailed scene analysis)
     st.subheader("🎬 Individual Video Scene Analysis")
     
     for video_name, video_data in st.session_state.processed_videos.items():
-        if video_data.get('processing_complete', False):
-            transcription_data = video_data['transcription_results']
-            visual_analysis_results = video_data['visual_analysis_results']
+        if video_data.get('status') == 'completed':
+            transcription_data = video_data['transcription']
+            visual_analysis_results = video_data['visual_analysis']
+            
+            # ✅ CLEAN UI: Create mapping ONLY for this specific video (no debug info)
+            transcription_scenes_map = {}
+            if transcription_data.get('scenes_with_text'):
+                for scene in transcription_data['scenes_with_text']:
+                    scene_id = scene.get('scene_id')
+                    source_video = scene.get('source_video')
+                    
+                    # ✅ ULTRA STRICT: Only accept scenes that explicitly belong to this video
+                    if scene_id and source_video and source_video == video_name:
+                        transcription_scenes_map[scene_id] = scene
             
             # Complete Scene Analysis for this video
             with st.expander(f"🎬 Complete Scene Analysis with Advanced AI for {video_name}"):
@@ -561,23 +513,33 @@ if st.session_state.processed_videos:
                 all_scenes = sorted(visual_analysis_results, key=lambda x: x.get('scene_id', 0))
                 
                 for scene in all_scenes:
-                    st.write(f"**Scene {scene['scene_id']}** ({scene['timestamp_str']}):")
-                    st.write(f"🎭 **Visual**: {scene.get('visual_description', 'N/A')}")
+                    scene_id = scene.get('scene_id')
+                    st.write(f"**Scene {scene_id}** ({scene['timestamp_str']}):")
                     
-                    # Enhanced audio display
+                    # ✅ Clean visual description display
+                    visual_desc = scene.get('visual_description', '')
+                    if not visual_desc or visual_desc.strip() == '':
+                        visual_desc = "⚠️ Visual analysis not available"
+                    
+                    st.write(f"🎭 **Visual**: {visual_desc}")
+                    
+                    # ✅ FIX: Get conversation from transcription_data for THIS video, not from visual_analysis_results
                     speaker_enabled = transcription_data.get('speaker_enabled', False)
+                    transcription_scene = transcription_scenes_map.get(scene_id)
                     
-                    if speaker_enabled and scene.get('speaker_transcript'):
+                    if speaker_enabled and transcription_scene and transcription_scene.get('speaker_transcript'):
                         st.write(f"🎤 **Conversation**:")
-                        for line in scene['speaker_transcript'].split('\n'):
+                        for line in transcription_scene['speaker_transcript'].split('\n'):
                             if line.strip():
                                 st.write(f"  {line}")
                         
-                        if scene.get('unique_speakers'):
-                            speakers_text = ", ".join(scene['unique_speakers'])
+                        if transcription_scene.get('unique_speakers'):
+                            speakers_text = ", ".join(transcription_scene['unique_speakers'])
                             st.write(f"👥 **Speakers**: {speakers_text}")
+                    elif transcription_scene and transcription_scene.get('transcript'):
+                        st.write(f"📝 **Audio**: {transcription_scene['transcript']}")
                     else:
-                        st.write(f"📝 **Audio**: {scene.get('transcript', 'No speech')}")
+                        st.write(f"📝 **Audio**: No speech")
                     
                     st.write(f"🎭 **Type**: {scene.get('scene_type', 'Unknown')}")
                     st.write("---")
@@ -627,8 +589,8 @@ if st.session_state.processed_videos and len(st.session_state.processed_videos) 
             all_processed_scenes = []
             
             for video_name, video_data in st.session_state.processed_videos.items():
-                if video_data.get('processing_complete', False):
-                    visual_scenes = video_data['visual_analysis_results']
+                if video_data.get('status') == 'completed':
+                    visual_scenes = video_data['visual_analysis']
                     total_scenes_all_videos += len(visual_scenes)
                     
                     # Add source video info to each scene
@@ -949,6 +911,67 @@ if st.session_state.processed_videos and len(st.session_state.processed_videos) 
                 for content_line in current_content:
                     st.write(content_line)
                 st.write("---")
+        
+        # NEW: Export to JSON functionality
+        st.markdown("---")
+        st.markdown("### 📥 Export Script to JSON")
+        
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            if st.button("📋 Export Script as Separate Act JSON Files", type="primary", use_container_width=True):
+                with st.spinner("🔄 Converting script to JSON format and creating files..."):
+                    try:
+                        # Parse the final script to separate acts
+                        final_script_text = script_data['final_script'].get('final_script', '')
+                        selected_scenes = script_data['selected_scenes']
+                        
+                        script_title, acts_data = parse_script_to_acts(final_script_text, selected_scenes)
+                        
+                        if acts_data:
+                            folder_path, created_files = create_acts_folder_and_files(script_title, acts_data)
+                            
+                            st.success(f"✔ Successfully created script export!")
+                            st.info(f"📊 Generated {len(created_files)} act files in folder: `{os.path.basename(folder_path)}`")
+                            
+                            # Show created files
+                            st.markdown("#### � Created Files:")
+                            for filename in created_files:
+                                st.markdown(f"- 📄 `{filename}`")
+                            
+                            st.markdown(f"**📍 Export Location:** `{folder_path}`")
+                            
+                            # Create ZIP file for download
+                            import zipfile
+                            zip_filename = f"{os.path.basename(folder_path)}.zip"
+                            zip_path = os.path.join('data/outputs', zip_filename)
+                            
+                            with zipfile.ZipFile(zip_path, 'w') as zipf:
+                                for filename in created_files:
+                                    file_path = os.path.join(folder_path, filename)
+                                    zipf.write(file_path, filename)
+                            
+                            # Download button
+                            with open(zip_path, 'rb') as f:
+                                st.download_button(
+                                    label="💾 Download All Act Files (ZIP)",
+                                    data=f.read(),
+                                    file_name=zip_filename,
+                                    mime="application/zip",
+                                    use_container_width=True
+                                )
+                            
+                            # Show sample act structure
+                            with st.expander("👀 Sample Act JSON Structure", expanded=False):
+                                if acts_data:
+                                    first_act = list(acts_data.values())[0]
+                                    st.json(first_act)
+                            
+                        else:
+                            st.error("❌ Failed to parse script into acts")
+                            
+                    except Exception as e:
+                        st.error(f"❌ Export error: {str(e)}")
+                        st.info("💡 Please ensure the script has been generated successfully before exporting")
 
 # NEW: Cleanup option with unique key
 if st.session_state.validation_result:

@@ -32,10 +32,14 @@ class AssemblyAITranscriber:
             st.error(f"❌ AssemblyAI API connection failed: {e}")
             pass
 
-    def extract_audio_with_calibration(self, video_path: str) -> Optional[str]:
-        """Extract audio with minimal output"""
+    def extract_audio_with_calibration(self, video_path: str, unique_suffix: str = None) -> Optional[str]:
+        """Extract audio with minimal output and unique naming"""
         try:
-            audio_filename = f"audio_assemblyai_{int(time.time())}.wav"
+            # ✅ FIX: Add unique suffix to avoid filename conflicts
+            if unique_suffix:
+                audio_filename = f"audio_assemblyai_{unique_suffix}_{int(time.time())}.wav"
+            else:
+                audio_filename = f"audio_assemblyai_{int(time.time())}.wav"
             audio_path = os.path.join(self.temp_dir, audio_filename)
 
             # Try multiple extraction methods for compatibility
@@ -440,10 +444,14 @@ class AssemblyAITranscriber:
             return scenes
 
     def process_complete_video(self, video_path: str, scenes: List[Dict], speakers_expected: int = None) -> List[Dict]:
-        """Complete processing pipeline - Clean Version"""
+        """Complete processing pipeline - Clean Version with unique audio naming"""
         try:
-            # Audio extraction (silent)
-            audio_path = self.extract_audio_with_calibration(video_path)
+            # ✅ FIX: Generate unique suffix from video path and scenes
+            video_filename = os.path.basename(video_path).replace('.', '_')
+            unique_suffix = f"{video_filename}_{len(scenes)}scenes"
+            
+            # Audio extraction with unique naming
+            audio_path = self.extract_audio_with_calibration(video_path, unique_suffix)
             if not audio_path:
                 st.error("❌ Audio extraction failed - cannot proceed")
                 return scenes
